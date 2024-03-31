@@ -8,4 +8,7 @@ class WallboxModbus:
         self.client = AsyncModbusTcpClient(host=host, port=port)
 
     async def connect(self):
-        pass
+        return await self.client.connect()
+
+    def close(self):
+        self.client.close()
