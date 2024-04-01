@@ -1,4 +1,5 @@
 import pytest
+import pytest_asyncio
 from pymodbus.transport import NULLMODEM_HOST
 from wallbox_modbus import WallboxModbus
 from wallbox_modbus.constants import ChargerStates, RegisterAddresses
@@ -7,27 +8,28 @@ pytestmark = pytest.mark.asyncio
 
 class TestWallboxModbus:
 
+    wallbox: WallboxModbus
+
+    @pytest_asyncio.fixture(autouse=True)
+    async def _setup_teardown(self):
+        self.wallbox = WallboxModbus(NULLMODEM_HOST)
+        yield
+        self.wallbox.close()
+
     async def test_connect(self, fake_wallbox_modbus_server):
-        # Arrange
-        wallbox = WallboxModbus(NULLMODEM_HOST)
         # Act
-        await wallbox.connect()
+        await self.wallbox.connect()
         # Assert
         assert len(fake_wallbox_modbus_server.active_connections) == 1
-        # Cleanup
-        wallbox.close()
 
     async def test_car_connected(self, fake_wallbox_modbus_server):
         # Arrange
         mock_car_is_connected(fake_wallbox_modbus_server)
-        wallbox = WallboxModbus(NULLMODEM_HOST)
-        await wallbox.connect()
+        await self.wallbox.connect()
         # Act
-        is_connected = await wallbox.is_car_connected()
+        is_connected = await self.wallbox.is_car_connected()
         # Assert
         assert is_connected
-        # Cleanup
-        wallbox.close()
 
 
 def mock_car_is_connected(server):
