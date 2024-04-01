@@ -1,4 +1,5 @@
 from pymodbus.client import AsyncModbusTcpClient
+from wallbox_modbus.constants import ChargerStates, RegisterAddresses
 
 class WallboxModbus:
 
@@ -12,3 +13,8 @@ class WallboxModbus:
 
     def close(self):
         self.client.close()
+
+    async def is_car_connected(self) -> bool:
+        result = await self.client.read_holding_registers(RegisterAddresses.CHARGER_STATE)
+        print('result', result.registers[0])
+        return result.registers[0] != ChargerStates.NO_CAR_CONNECTED
