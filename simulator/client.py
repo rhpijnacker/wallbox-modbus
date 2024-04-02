@@ -7,7 +7,7 @@ from pymodbus.client import ModbusTcpClient
 
 client = ModbusTcpClient(host='localhost', port=5020)
 client.connect()
-result =  client.read_holding_registers(0x101, 2)
+result =  client.read_holding_registers(0x219, 2)
 print('result', result.registers)
 
 result = client.write_register(0x101, 1)

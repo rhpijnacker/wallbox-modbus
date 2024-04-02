@@ -27,8 +27,8 @@ class WallboxSimulator:
         }
 
     async def setup(self):
-        datablock = ModbusSequentialDataBlock(0x00, [0] * 550)
-        context = ModbusSlaveContext(di=datablock, co=datablock, hr=datablock, ir=datablock)
+        datablock = ModbusSequentialDataBlock(0x00, [0] * 547)
+        context = ModbusSlaveContext(hr=datablock)
         self.context = ModbusServerContext(slaves=context, single=True)
         self.server = ModbusTcpServer(
             context=self.context, 
