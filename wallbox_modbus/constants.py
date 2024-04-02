@@ -1,5 +1,9 @@
 import enum
 
+class Control(int, enum.Enum):
+    USER = 0,
+    REMOTE = 1
+
 class ChargerStates(int, enum.Enum):
     NO_CAR_CONNECTED = 0
     CHARGING = 1
@@ -15,5 +19,7 @@ class ChargerStates(int, enum.Enum):
     DISCHARGING = 11
 
 class RegisterAddresses(int, enum.Enum):
-
-    CHARGER_STATE = 537
+    CONTROL = 0x51 # RW, 0: User (default) / 1: Remote
+    
+    CHARGER_STATE = 0x219
+    STATE_OF_CHARGE = 0x21a

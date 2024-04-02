@@ -2,7 +2,7 @@ import pytest
 import pytest_asyncio
 from pymodbus.transport import NULLMODEM_HOST
 from wallbox_modbus import WallboxModbus
-from wallbox_modbus.constants import ChargerStates, RegisterAddresses
+from wallbox_modbus.constants import Control, ChargerStates, RegisterAddresses
 
 pytestmark = pytest.mark.asyncio
 
@@ -21,6 +21,14 @@ class TestWallboxModbus:
         await self.wallbox.connect()
         # Assert
         assert len(fake_wallbox_modbus_server.active_connections) == 1
+
+    async def test_set_control(self, fake_wallbox_modbus_server):
+        # Arrange
+        await self.wallbox.connect()
+        # Act
+        await self.wallbox.set_control(Control.REMOTE)
+        # Assert
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.CONTROL) == Control.REMOTE
 
     async def test_car_is_connected(self, fake_wallbox_modbus_server):
         # Arrange
@@ -51,4 +59,8 @@ def set_modbus_values(server, start_address, values):
     fc_as_hex = 0x3
     slave_id = 0
     return server.context[slave_id].setValues(fc_as_hex, start_address, values)
- 
+
+def get_server_value(server, address):
+    fc_as_hex = 0x3
+    slave_id = 0
+    return server.context[slave_id].getValues(fc_as_hex, address)[0]

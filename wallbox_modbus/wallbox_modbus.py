@@ -14,7 +14,9 @@ class WallboxModbus:
     def close(self):
         self.client.close()
 
+    async def set_control(self, user_or_remote):
+        await self.client.write_register(RegisterAddresses.CONTROL, user_or_remote)
+
     async def is_car_connected(self) -> bool:
         result = await self.client.read_holding_registers(RegisterAddresses.CHARGER_STATE)
-        print("is_car_connected", result.registers[0])
         return result.registers[0] != ChargerStates.NO_CAR_CONNECTED
