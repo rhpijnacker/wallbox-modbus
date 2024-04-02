@@ -1,19 +1,45 @@
-import asyncio
-from pymodbus.datastore import ModbusSimulatorContext
-from pymodbus.server import ModbusSimulatorServer
-import os
+#!../venv/bin/python3
 
-cwd = os.path.dirname(os.path.abspath(__file__))
+import asyncio
+import logging
+from pymodbus import pymodbus_apply_logging_config
+from pymodbus.datastore import (
+    ModbusSequentialDataBlock,
+    ModbusServerContext,
+    ModbusSlaveContext,
+)
+from pymodbus.server import ModbusTcpServer
+
+pymodbus_apply_logging_config(logging.DEBUG)
+
+class WallboxSimulator:
+
+    server: ModbusTcpServer
+
+    async def setup(self):
+        datablock = ModbusSequentialDataBlock(0x00, [17] * 100)
+        context = ModbusSlaveContext(di=datablock, co=datablock, hr=datablock, ir=datablock)
+        context = ModbusServerContext(slaves=context, single=True)
+        self.server = ModbusTcpServer(
+            context=context, 
+            address=('', 5021), 
+            request_tracer=self.server_request_tracer,
+            response_manipulator=self.server_response_manipulator,
+        )
+
+    def server_request_tracer(self, request, *_addr):
+        print(f"---> REQUEST: {request}")
+
+    def server_response_manipulator(self, response):
+        print(f"---> RESPONSE: {response}")
+        return response, False
+
+    async def run(self):
+        await self.server.serve_forever()
 
 async def main():
-    server = ModbusSimulatorServer(
-        modbus_server='server',
-        modbus_device='Wallbox EVSE',
-        http_host='0.0.0.0',
-        http_port=8080,
-        log_file=f'{cwd}/simulator.log',
-        json_file=f'{cwd}/configuration.json',
-    )
-    await server.run_forever()
+    simulator = WallboxSimulator()
+    await simulator.setup()
+    await simulator.run()
 
 asyncio.run(main())
