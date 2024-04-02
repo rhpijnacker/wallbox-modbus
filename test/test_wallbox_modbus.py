@@ -22,7 +22,7 @@ class TestWallboxModbus:
         # Assert
         assert len(fake_wallbox_modbus_server.active_connections) == 1
 
-    async def test_car_connected(self, fake_wallbox_modbus_server):
+    async def test_car_is_connected(self, fake_wallbox_modbus_server):
         # Arrange
         mock_car_is_connected(fake_wallbox_modbus_server)
         await self.wallbox.connect()
@@ -31,10 +31,24 @@ class TestWallboxModbus:
         # Assert
         assert is_connected
 
+    async def test_car_is_not_connected(self, fake_wallbox_modbus_server):
+        # Arrange
+        mock_car_is_not_connected(fake_wallbox_modbus_server)
+        await self.wallbox.connect()
+        # Act
+        is_connected = await self.wallbox.is_car_connected()
+        # Assert
+        assert not is_connected
+
+
+def mock_car_is_not_connected(server):
+    set_modbus_values(server, RegisterAddresses.CHARGER_STATE, [ChargerStates.NO_CAR_CONNECTED])
 
 def mock_car_is_connected(server):
-    store = get_datastore(server)
-    store.setValues(RegisterAddresses.CHARGER_STATE, [ChargerStates.CONNECTED_NOT_CHARGING])
+    set_modbus_values(server, RegisterAddresses.CHARGER_STATE, [ChargerStates.CONNECTED_NOT_CHARGING])
 
-def get_datastore(server):
-    return server.context[0].store['h']
+def set_modbus_values(server, start_address, values):
+    fc_as_hex = 0x3
+    slave_id = 0
+    return server.context[slave_id].setValues(fc_as_hex, start_address, values)
+ 

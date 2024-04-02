@@ -16,5 +16,5 @@ class WallboxModbus:
 
     async def is_car_connected(self) -> bool:
         result = await self.client.read_holding_registers(RegisterAddresses.CHARGER_STATE)
-        print('result', result.registers[0])
+        print("is_car_connected", result.registers[0])
         return result.registers[0] != ChargerStates.NO_CAR_CONNECTED
