@@ -4,6 +4,7 @@ from pymodbus.transport import NULLMODEM_HOST
 from wallbox_modbus import WallboxModbus
 from wallbox_modbus.constants import (
     Control, 
+    ChargerLockState,
     ChargerStates, 
     RegisterAddresses,
     SetpointType
@@ -63,6 +64,33 @@ class TestWallboxModbus:
         assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.SETPOINT_TYPE) == SetpointType.POWER
         assert type == SetpointType.POWER
 
+    # Charger lock state
+        
+    async def test_lock_charger(self, fake_wallbox_modbus_server):
+        # Arrange
+        await self.wallbox.connect()
+        is_locked = await self.wallbox.is_charger_locked()
+        assert not is_locked
+        # Act
+        await self.wallbox.lock_charger()
+        is_locked = await self.wallbox.is_charger_locked()
+        # Assert
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.CHARGER_LOCK_STATE) == ChargerLockState.LOCK
+        assert is_locked
+
+    async def test_unlock_charger(self, fake_wallbox_modbus_server):
+        # Arrange
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.CHARGER_LOCK_STATE, [ChargerLockState.LOCK])
+        await self.wallbox.connect()
+        is_locked = await self.wallbox.is_charger_locked()
+        assert is_locked
+        # Act
+        await self.wallbox.unlock_charger()
+        is_locked = await self.wallbox.is_charger_locked()
+        # Assert
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.CHARGER_LOCK_STATE) == ChargerLockState.UNLOCK
+        assert not is_locked
+
     # Charger state
 
     async def test_car_is_connected(self, fake_wallbox_modbus_server):
@@ -85,12 +113,12 @@ class TestWallboxModbus:
 
 
 def mock_car_is_not_connected(server):
-    set_modbus_values(server, RegisterAddresses.CHARGER_STATE, [ChargerStates.NO_CAR_CONNECTED])
+    set_server_values(server, RegisterAddresses.CHARGER_STATE, [ChargerStates.NO_CAR_CONNECTED])
 
 def mock_car_is_connected(server):
-    set_modbus_values(server, RegisterAddresses.CHARGER_STATE, [ChargerStates.CONNECTED_NOT_CHARGING])
+    set_server_values(server, RegisterAddresses.CHARGER_STATE, [ChargerStates.CONNECTED_NOT_CHARGING])
 
-def set_modbus_values(server, start_address, values):
+def set_server_values(server, start_address, values):
     fc_as_hex = 0x3
     slave_id = 0
     return server.context[slave_id].setValues(fc_as_hex, start_address, values)

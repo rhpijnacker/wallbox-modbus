@@ -1,6 +1,7 @@
 from pymodbus.client import AsyncModbusTcpClient
 from wallbox_modbus.constants import (
     Control, 
+    ChargerLockState,
     ChargerStates, 
     RegisterAddresses, 
     SetpointType
@@ -39,6 +40,18 @@ class WallboxModbus:
 
     async def set_setpoint_type(self, setpoint_type):
         await self.client.write_register(RegisterAddresses.SETPOINT_TYPE, setpoint_type)
+
+    ### Charger lock state ###
+        
+    async def is_charger_locked(self):
+        result = await self.client.read_holding_registers(RegisterAddresses.CHARGER_LOCK_STATE)
+        return result.registers[0] == ChargerLockState.LOCK
+
+    async def lock_charger(self):
+        await self.client.write_register(RegisterAddresses.CHARGER_LOCK_STATE, ChargerLockState.LOCK)
+
+    async def unlock_charger(self):
+        await self.client.write_register(RegisterAddresses.CHARGER_LOCK_STATE, ChargerLockState.UNLOCK)
 
     ### Charger state ###
 
