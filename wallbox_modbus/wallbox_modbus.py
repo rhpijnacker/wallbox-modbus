@@ -1,5 +1,6 @@
 from pymodbus.client import AsyncModbusTcpClient
 from wallbox_modbus.constants import (
+    Action,
     Control, 
     ChargerLockState,
     ChargerStates, 
@@ -52,6 +53,20 @@ class WallboxModbus:
 
     async def unlock_charger(self):
         await self.client.write_register(RegisterAddresses.CHARGER_LOCK_STATE, ChargerLockState.UNLOCK)
+
+    ### Action ###
+        
+    async def start_charging_discharging(self):
+        await self.client.write_register(RegisterAddresses.ACTION, Action.START_CHARGING_DISCHARGING)
+
+    async def stop_charging_discharging(self):
+        await self.client.write_register(RegisterAddresses.ACTION, Action.STOP_CHARGING_DISCHARGING)
+
+    async def reboot_charger(self):
+        await self.client.write_register(RegisterAddresses.ACTION, Action.REBOOT_CHARGER)
+
+    async def update_firmware(self):
+        await self.client.write_register(RegisterAddresses.ACTION, Action.UPDATE_FIRMWARE)
 
     ### Charger state ###
 

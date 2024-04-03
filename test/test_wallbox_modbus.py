@@ -3,6 +3,7 @@ import pytest_asyncio
 from pymodbus.transport import NULLMODEM_HOST
 from wallbox_modbus import WallboxModbus
 from wallbox_modbus.constants import (
+    Action,
     Control, 
     ChargerLockState,
     ChargerStates, 
@@ -90,6 +91,41 @@ class TestWallboxModbus:
         # Assert
         assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.CHARGER_LOCK_STATE) == ChargerLockState.UNLOCK
         assert not is_locked
+
+    # Action
+        
+    async def test_start_charging_discharging(self, fake_wallbox_modbus_server):
+        # Arrange
+        await self.wallbox.connect()
+        # Act
+        await self.wallbox.start_charging_discharging()
+        # Assert
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.ACTION) == Action.START_CHARGING_DISCHARGING
+
+    async def test_stop_charging_discharging(self, fake_wallbox_modbus_server):
+        # Arrange
+        await self.wallbox.connect()
+        # Act
+        await self.wallbox.stop_charging_discharging()
+        # Assert
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.ACTION) == Action.STOP_CHARGING_DISCHARGING
+
+    async def test_reboot_charger(self, fake_wallbox_modbus_server):
+        # Arrange
+        await self.wallbox.connect()
+        # Act
+        await self.wallbox.reboot_charger()
+        # Assert
+        # For a real server this does not make sense ...
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.ACTION) == Action.REBOOT_CHARGER
+
+    async def test_update_firmware(self, fake_wallbox_modbus_server):
+        # Arrange
+        await self.wallbox.connect()
+        # Act
+        await self.wallbox.update_firmware()
+        # Assert
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.ACTION) == Action.UPDATE_FIRMWARE
 
     # Charger state
 

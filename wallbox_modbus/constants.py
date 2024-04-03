@@ -12,6 +12,11 @@ class ChargerLockState(int, enum.Enum):
     UNLOCK = 0,
     LOCK = 1
 
+class Action(int, enum.Enum):
+    START_CHARGING_DISCHARGING = 1,
+    STOP_CHARGING_DISCHARGING = 2,
+    REBOOT_CHARGER = 3,
+    UPDATE_FIRMWARE = 4
 class ChargerStates(int, enum.Enum):
     NO_CAR_CONNECTED = 0
     CHARGING = 1
@@ -27,10 +32,11 @@ class ChargerStates(int, enum.Enum):
     DISCHARGING = 11
 
 class RegisterAddresses(int, enum.Enum):
-    CONTROL = 0x51       # RW, 0: User (default) / 1: Remote
-    SETPOINT_TYPE = 0x53 # RW, 0: Current (default) / 1: Power by phase
+    CONTROL = 0x51             # RW, 0: User (default) / 1: Remote
+    SETPOINT_TYPE = 0x53       # RW, 0: Current (default) / 1: Power by phase
 
     CHARGER_LOCK_STATE = 0x100 # RW, 0: Unlock / 1: Lock
+    ACTION = 0x101             # RW, 1: Start (dis)charging / 2: Stop (dis)charging / 3: Reboot charger / 4: Update firmware
 
     CHARGER_STATE = 0x219
     STATE_OF_CHARGE = 0x21a
