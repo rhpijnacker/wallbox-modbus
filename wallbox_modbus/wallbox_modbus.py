@@ -1,5 +1,5 @@
 from pymodbus.client import AsyncModbusTcpClient
-from wallbox_modbus.constants import ChargerStates, RegisterAddresses
+from wallbox_modbus.constants import Control, ChargerStates, RegisterAddresses
 
 class WallboxModbus:
 
@@ -14,8 +14,11 @@ class WallboxModbus:
     def close(self):
         self.client.close()
 
-    async def set_control(self, user_or_remote):
-        await self.client.write_register(RegisterAddresses.CONTROL, user_or_remote)
+    async def release_control(self):
+        await self.client.write_register(RegisterAddresses.CONTROL, Control.USER)
+
+    async def take_control(self):
+        await self.client.write_register(RegisterAddresses.CONTROL, Control.REMOTE)
 
     async def is_car_connected(self) -> bool:
         result = await self.client.read_holding_registers(RegisterAddresses.CHARGER_STATE)

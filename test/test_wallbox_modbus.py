@@ -22,11 +22,19 @@ class TestWallboxModbus:
         # Assert
         assert len(fake_wallbox_modbus_server.active_connections) == 1
 
-    async def test_set_control(self, fake_wallbox_modbus_server):
+    async def test_release_control(self, fake_wallbox_modbus_server):
         # Arrange
         await self.wallbox.connect()
         # Act
-        await self.wallbox.set_control(Control.REMOTE)
+        await self.wallbox.release_control()
+        # Assert
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.CONTROL) == Control.USER
+
+    async def test_take_control(self, fake_wallbox_modbus_server):
+        # Arrange
+        await self.wallbox.connect()
+        # Act
+        await self.wallbox.take_control()
         # Assert
         assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.CONTROL) == Control.REMOTE
 
