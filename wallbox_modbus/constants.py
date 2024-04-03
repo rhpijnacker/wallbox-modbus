@@ -4,6 +4,10 @@ class Control(int, enum.Enum):
     USER = 0,
     REMOTE = 1
 
+class SetpointType(int, enum.Enum):
+    CURRENT = 0,
+    POWER = 1
+
 class ChargerStates(int, enum.Enum):
     NO_CAR_CONNECTED = 0
     CHARGING = 1
@@ -19,7 +23,8 @@ class ChargerStates(int, enum.Enum):
     DISCHARGING = 11
 
 class RegisterAddresses(int, enum.Enum):
-    CONTROL = 0x51 # RW, 0: User (default) / 1: Remote
-    
+    CONTROL = 0x51       # RW, 0: User (default) / 1: Remote
+    SETPOINT_TYPE = 0x53 # RW, 0: Current (default) / 1: Power by phase
+
     CHARGER_STATE = 0x219
     STATE_OF_CHARGE = 0x21a
