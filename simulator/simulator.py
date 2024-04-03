@@ -23,8 +23,9 @@ class WallboxSimulator:
     def __init__(self):
         # callback functions for handling writes to write registers
         self._write_handlers = {
-            0x51:  self._handle_control,
-            0x101: self._handle_action
+            0x51:  self._handle_set_control,
+            # 0x53:  self._handle_set_setpoint_type, -- ignore when user control?
+            0x101: self._handle_set_action
         }
 
     async def setup(self):
@@ -132,15 +133,15 @@ class WallboxSimulator:
         slave_id = 0
         return self.context[slave_id].getValues(fc_as_hex, address)[0]
 
-    def _handle_control(self, address, value):
-        print(f"--> handle control {address} -> {value}")
+    def _handle_set_control(self, address, value):
+        print(f"--> set control {address} -> {value}")
         if value == 0: # user
             self._set_modbus_values_control_user()
         elif value == 1: # remote
             self._set_modbus_values_control_remote()
 
-    def _handle_action(self, address, value):
-        print(f"--> handle action {address} -> {value}")
+    def _handle_set_action(self, address, value):
+        print(f"--> set action {address} -> {value}")
         if value == 1: # start (dis)charging
             self._set_modbus_values_connected_charging()
         elif value == 2: # stop (dis)charging
