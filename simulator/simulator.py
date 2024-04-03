@@ -23,6 +23,7 @@ class WallboxSimulator:
     def __init__(self):
         # callback functions for handling writes to write registers
         self._write_handlers = {
+            0x51:  self._handle_control,
             0x101: self._handle_action
         }
 
@@ -57,6 +58,20 @@ class WallboxSimulator:
             0,    # 0x56: reserved
             5750, # 0x57: power setpoint on idle state (int16  -7400W to 7400)
         ])
+
+    def _set_modbus_values_control_user(self):
+        self._set_modbus_values(0x52, [
+            1,    # 0x52: start charging on EV-Gun connected (0: disable / 1: enable)
+            0,    # 0x53: setpoint type (0: current / 1: power by phase)
+            0,    # 0x54: set setpoint on idle state (0: disable / 1: enable)
+            6,    # 0x55: current setpoint on idle state (int16  -32A to 32)
+            0,    # 0x56: reserved
+            0,    # 0x57: power setpoint on idle state (int16  -7400W to 7400)
+        ])
+
+    def _set_modbus_values_control_remote(self):
+        # no values are automatically (re)set when control is set to remote
+        pass
 
     def _set_modbus_values_connected_idle(self):
         self._set_modbus_values(0x100, [
@@ -116,6 +131,13 @@ class WallboxSimulator:
         fc_as_hex = 0x3
         slave_id = 0
         return self.context[slave_id].getValues(fc_as_hex, address)[0]
+
+    def _handle_control(self, address, value):
+        print(f"--> handle control {address} -> {value}")
+        if value == 0: # user
+            self._set_modbus_values_control_user()
+        elif value == 1: # remote
+            self._set_modbus_values_control_remote()
 
     def _handle_action(self, address, value):
         print(f"--> handle action {address} -> {value}")
