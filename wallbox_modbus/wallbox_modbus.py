@@ -14,6 +14,12 @@ class WallboxModbus:
     def close(self):
         self.client.close()
 
+    ### Control ###
+
+    async def has_control(self):
+        result = await self.client.read_holding_registers(RegisterAddresses.CONTROL)
+        return result.registers[0] == Control.REMOTE
+
     async def release_control(self):
         await self.client.write_register(RegisterAddresses.CONTROL, Control.USER)
 
