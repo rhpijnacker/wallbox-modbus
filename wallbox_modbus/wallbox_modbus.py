@@ -108,6 +108,20 @@ class WallboxModbus:
         result = await self.client.read_holding_registers(RegisterAddresses.MAX_AVAILABLE_POWER)
         return result.registers[0]
 
+    ### AC current / voltage / active power RMS
+
+    async def get_ac_current_rms(self) -> int:
+        result = await self.client.read_holding_registers(RegisterAddresses.AC_CURRENT_RMS)
+        return result.registers[0]
+
+    async def get_ac_voltage_rms(self) -> int:
+        result = await self.client.read_holding_registers(RegisterAddresses.AC_VOLTAGE_RMS)
+        return result.registers[0]
+
+    async def get_ac_active_power_rms(self) -> int:
+        result = await self.client.read_holding_registers(RegisterAddresses.AC_ACTIVE_POWER_RMS)
+        return result.registers[0]
+
     ### Charger state ###
 
     async def is_car_connected(self) -> bool:

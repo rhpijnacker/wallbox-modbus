@@ -175,10 +175,10 @@ class TestWallboxModbus:
         assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.POWER_SETPOINT) == 65536 - 2345
         assert value == -2345
 
-    # 
+    # Max available current / power
 
     async def test_get_max_available_current(self, fake_wallbox_modbus_server, connect_to_wallbox):
-        # Arrange 
+        # Arrange
         set_server_values(fake_wallbox_modbus_server, RegisterAddresses.MAX_AVAILABLE_CURRENT, [23])
         # Act
         value = await self.wallbox.get_max_available_current()
@@ -186,18 +186,38 @@ class TestWallboxModbus:
         assert value == 23
 
     async def test_get_max_available_power(self, fake_wallbox_modbus_server, connect_to_wallbox):
-        # Arrange 
+        # Arrange
         set_server_values(fake_wallbox_modbus_server, RegisterAddresses.MAX_AVAILABLE_POWER, [2345])
         # Act
         value = await self.wallbox.get_max_available_power()
         # Assert
         assert value == 2345
 
-    async def test_get_max_available_current(self, fake_wallbox_modbus_server, connect_to_wallbox):
-        # Arrange 
+    # AC current / voltage / active power RMS
+
+    async def test_get_ac_current_rms(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Arrange
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.AC_CURRENT_RMS, [23])
         # Act
+        value = await self.wallbox.get_ac_current_rms()
         # Assert
-        self
+        assert value == 23
+
+    async def test_get_ac_voltage_rms(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Arrange
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.AC_VOLTAGE_RMS, [234])
+        # Act
+        value = await self.wallbox.get_ac_voltage_rms()
+        # Assert
+        assert value == 234
+
+    async def test_get_ac_active_power_rms(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Arrange
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.AC_ACTIVE_POWER_RMS, [2345])
+        # Act
+        value = await self.wallbox.get_ac_active_power_rms()
+        # Assert
+        assert value == 2345
 
     # Charger state
 
