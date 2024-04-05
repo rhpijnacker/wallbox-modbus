@@ -80,8 +80,41 @@ class WallboxModbus:
     async def update_firmware(self):
         await self.client.write_register(RegisterAddresses.ACTION, Action.UPDATE_FIRMWARE)
 
+    ### Current setpoint ###
+
+    async def get_current_setpoint(self):
+        result = await self.client.read_holding_registers(RegisterAddresses.CURRENT_SETPOINT)
+        return uint16_to_int16(result.registers[0])
+
+    async def set_current_setpoint(self, value: int):
+        await self.client.write_register(RegisterAddresses.CURRENT_SETPOINT, int16_to_uint16(value))
+
+    ### Power setpoint ###
+
+    async def get_power_setpoint(self):
+        result = await self.client.read_holding_registers(RegisterAddresses.POWER_SETPOINT)
+        return uint16_to_int16(result.registers[0])
+
+    async def set_power_setpoint(self, value: int):
+        await self.client.write_register(RegisterAddresses.POWER_SETPOINT, int16_to_uint16(value))
+
     ### Charger state ###
 
     async def is_car_connected(self) -> bool:
         result = await self.client.read_holding_registers(RegisterAddresses.CHARGER_STATE)
         return result.registers[0] != ChargerStates.NO_CAR_CONNECTED
+
+
+MAX_USI = 65536
+HALF_MAX_USI = MAX_USI/2
+
+def int16_to_uint16(value):
+    if value < 0:
+        value = value + MAX_USI
+    return value
+
+def uint16_to_int16(value):
+    if value > HALF_MAX_USI:
+        value = value - MAX_USI
+    return value
+

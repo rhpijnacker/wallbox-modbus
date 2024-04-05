@@ -139,6 +139,42 @@ class TestWallboxModbus:
         # Assert
         assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.ACTION) == Action.UPDATE_FIRMWARE
 
+    # Current setpoint
+
+    async def test_positive_current_setpoint(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Act
+        await self.wallbox.set_current_setpoint(23)
+        value = await self.wallbox.get_current_setpoint()
+        # Assert
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.CURRENT_SETPOINT) == 23
+        assert value == 23
+
+    async def test_negative_current_setpoint(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Act
+        await self.wallbox.set_current_setpoint(-23)
+        value = await self.wallbox.get_current_setpoint()
+        # Assert
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.CURRENT_SETPOINT) == 65536 - 23
+        assert value == -23
+
+    # Power setpoint
+
+    async def test_positive_power_setpoint(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Act
+        await self.wallbox.set_power_setpoint(2345)
+        value = await self.wallbox.get_power_setpoint()
+        # Assert
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.POWER_SETPOINT) == 2345
+        assert value == 2345
+
+    async def test_negative_power_setpoint(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Act
+        await self.wallbox.set_power_setpoint(-2345)
+        value = await self.wallbox.get_power_setpoint()
+        # Assert
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.POWER_SETPOINT) == 65536 - 2345
+        assert value == -2345
+
     # Charger state
 
     async def test_car_is_connected(self, fake_wallbox_modbus_server, connect_to_wallbox):

@@ -43,6 +43,8 @@ class RegisterAddresses(int, enum.Enum):
 
     CHARGER_LOCK_STATE = 0x100 # RW, 0: Unlock / 1: Lock
     ACTION = 0x101             # RW, 1: Start (dis)charging / 2: Stop (dis)charging / 3: Reboot charger / 4: Update firmware
+    CURRENT_SETPOINT = 0x102   # RW, AC max charging current (-32A to 32A)
+    POWER_SETPOINT = 0x104     # RW, AC max charging power (-7400W to 7400W)
 
     CHARGER_STATE = 0x219
     STATE_OF_CHARGE = 0x21a
