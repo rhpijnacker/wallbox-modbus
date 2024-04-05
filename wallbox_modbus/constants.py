@@ -4,6 +4,10 @@ class Control(int, enum.Enum):
     USER = 0,
     REMOTE = 1
 
+class AutoChargingDischarging(int, enum.Enum):
+    DISABLE = 0,
+    ENABLE = 1
+
 class SetpointType(int, enum.Enum):
     CURRENT = 0,
     POWER = 1
@@ -33,6 +37,8 @@ class ChargerStates(int, enum.Enum):
 
 class RegisterAddresses(int, enum.Enum):
     CONTROL = 0x51             # RW, 0: User (default) / 1: Remote
+    AUTO_CHARGING_DISCHARGING = 0x52
+                               # RW, 0: Disable / 1: Enable (default) 
     SETPOINT_TYPE = 0x53       # RW, 0: Current (default) / 1: Power by phase
 
     CHARGER_LOCK_STATE = 0x100 # RW, 0: Unlock / 1: Lock

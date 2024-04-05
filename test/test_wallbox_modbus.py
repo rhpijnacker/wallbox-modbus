@@ -4,6 +4,7 @@ from pymodbus.transport import NULLMODEM_HOST
 from wallbox_modbus import WallboxModbus
 from wallbox_modbus.constants import (
     Action,
+    AutoChargingDischarging,
     Control, 
     ChargerLockState,
     ChargerStates, 
@@ -50,6 +51,33 @@ class TestWallboxModbus:
         # Assert
         assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.CONTROL) == Control.REMOTE
         assert has_control
+
+    # Start charging/discharging on EV-Gun conected
+
+    async def test_disable_auto_charging_discharging(self, fake_wallbox_modbus_server):
+        # Arrange
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.AUTO_CHARGING_DISCHARGING, [AutoChargingDischarging.ENABLE])
+        await self.wallbox.connect()
+        is_enabled = await self.wallbox.is_auto_charging_discharging_enabled()
+        assert is_enabled
+        # Act
+        await self.wallbox.disable_auto_charging_discharging()
+        is_enabled = await self.wallbox.is_auto_charging_discharging_enabled()
+        # Assert
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.AUTO_CHARGING_DISCHARGING) == AutoChargingDischarging.DISABLE
+        assert not is_enabled
+
+    async def test_disable_auto_charging_discharging(self, fake_wallbox_modbus_server):
+        # Arrange
+        await self.wallbox.connect()
+        is_enabled = await self.wallbox.is_auto_charging_discharging_enabled()
+        assert not is_enabled
+        # Act
+        await self.wallbox.enable_auto_charging_discharging()
+        is_enabled = await self.wallbox.is_auto_charging_discharging_enabled()
+        # Assert
+        assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.AUTO_CHARGING_DISCHARGING) == AutoChargingDischarging.ENABLE
+        assert is_enabled
 
     # Setpoint type
         

@@ -1,11 +1,11 @@
 from pymodbus.client import AsyncModbusTcpClient
 from wallbox_modbus.constants import (
     Action,
+    AutoChargingDischarging,
     Control, 
     ChargerLockState,
     ChargerStates, 
     RegisterAddresses, 
-    SetpointType
 )
 
 class WallboxModbus:
@@ -32,6 +32,18 @@ class WallboxModbus:
 
     async def take_control(self):
         await self.client.write_register(RegisterAddresses.CONTROL, Control.REMOTE)
+
+    ### Auto charging/discharging ###
+
+    async def is_auto_charging_discharging_enabled(self):
+        result = await self.client.read_holding_registers(RegisterAddresses.AUTO_CHARGING_DISCHARGING)
+        return result.registers[0] == AutoChargingDischarging.ENABLE
+
+    async def disable_auto_charging_discharging(self):
+        await self.client.write_register(RegisterAddresses.AUTO_CHARGING_DISCHARGING, AutoChargingDischarging.DISABLE)
+
+    async def enable_auto_charging_discharging(self):
+        await self.client.write_register(RegisterAddresses.AUTO_CHARGING_DISCHARGING, AutoChargingDischarging.ENABLE)
 
     ### Setpoint type ###
         
