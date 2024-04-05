@@ -193,6 +193,16 @@ class TestWallboxModbus:
         # Assert
         assert not is_connected
 
+    # State of charge
+
+    async def test_get_state_of_charge(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Arrange
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.STATE_OF_CHARGE, [23])
+        # Act
+        value = await self.wallbox.get_state_of_charge()
+        # Assert
+        assert value == 23
+
 
 def mock_car_is_not_connected(server):
     set_server_values(server, RegisterAddresses.CHARGER_STATE, [ChargerStates.NO_CAR_CONNECTED])

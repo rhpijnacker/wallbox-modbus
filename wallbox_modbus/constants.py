@@ -36,15 +36,15 @@ class ChargerStates(int, enum.Enum):
     DISCHARGING = 11
 
 class RegisterAddresses(int, enum.Enum):
-    CONTROL = 0x51             # RW, 0: User (default) / 1: Remote
+    CONTROL = 0x51              # RW, 0: User (default) / 1: Remote
     AUTO_CHARGING_DISCHARGING = 0x52
-                               # RW, 0: Disable / 1: Enable (default) 
-    SETPOINT_TYPE = 0x53       # RW, 0: Current (default) / 1: Power by phase
+                                # RW, 0: Disable / 1: Enable (default) 
+    SETPOINT_TYPE = 0x53        # RW, 0: Current (default) / 1: Power by phase
 
-    CHARGER_LOCK_STATE = 0x100 # RW, 0: Unlock / 1: Lock
-    ACTION = 0x101             # RW, 1: Start (dis)charging / 2: Stop (dis)charging / 3: Reboot charger / 4: Update firmware
-    CURRENT_SETPOINT = 0x102   # RW, AC max charging current (-32A to 32A)
-    POWER_SETPOINT = 0x104     # RW, AC max charging power (-7400W to 7400W)
+    CHARGER_LOCK_STATE = 0x100  # RW, 0: Unlock / 1: Lock
+    ACTION = 0x101              # RW, 1: Start (dis)charging / 2: Stop (dis)charging / 3: Reboot charger / 4: Update firmware
+    CURRENT_SETPOINT = 0x102    # RW, AC max charging current (-32A to 32A)
+    POWER_SETPOINT = 0x104      # RW, AC max charging power (-7400W to 7400W)
 
     CHARGER_STATE = 0x219
-    STATE_OF_CHARGE = 0x21a
+    STATE_OF_CHARGE = 0x21a     # RO, (0% to 100%)

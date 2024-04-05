@@ -82,7 +82,7 @@ class WallboxModbus:
 
     ### Current setpoint ###
 
-    async def get_current_setpoint(self):
+    async def get_current_setpoint(self) -> int:
         result = await self.client.read_holding_registers(RegisterAddresses.CURRENT_SETPOINT)
         return uint16_to_int16(result.registers[0])
 
@@ -91,7 +91,7 @@ class WallboxModbus:
 
     ### Power setpoint ###
 
-    async def get_power_setpoint(self):
+    async def get_power_setpoint(self) -> int:
         result = await self.client.read_holding_registers(RegisterAddresses.POWER_SETPOINT)
         return uint16_to_int16(result.registers[0])
 
@@ -103,6 +103,12 @@ class WallboxModbus:
     async def is_car_connected(self) -> bool:
         result = await self.client.read_holding_registers(RegisterAddresses.CHARGER_STATE)
         return result.registers[0] != ChargerStates.NO_CAR_CONNECTED
+
+    ### State of charge ###
+
+    async def get_state_of_charge(self) -> int:
+        result = await self.client.read_holding_registers(RegisterAddresses.STATE_OF_CHARGE)
+        return result.registers[0]
 
 
 MAX_USI = 65536
