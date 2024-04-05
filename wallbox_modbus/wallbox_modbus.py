@@ -98,6 +98,16 @@ class WallboxModbus:
     async def set_power_setpoint(self, value: int):
         await self.client.write_register(RegisterAddresses.POWER_SETPOINT, int16_to_uint16(value))
 
+    ### Max available current / power
+
+    async def get_max_available_current(self) -> int:
+        result = await self.client.read_holding_registers(RegisterAddresses.MAX_AVAILABLE_CURRENT)
+        return result.registers[0]
+
+    async def get_max_available_power(self) -> int:
+        result = await self.client.read_holding_registers(RegisterAddresses.MAX_AVAILABLE_POWER)
+        return result.registers[0]
+
     ### Charger state ###
 
     async def is_car_connected(self) -> bool:

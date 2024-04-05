@@ -175,6 +175,30 @@ class TestWallboxModbus:
         assert get_server_value(fake_wallbox_modbus_server, RegisterAddresses.POWER_SETPOINT) == 65536 - 2345
         assert value == -2345
 
+    # 
+
+    async def test_get_max_available_current(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Arrange 
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.MAX_AVAILABLE_CURRENT, [23])
+        # Act
+        value = await self.wallbox.get_max_available_current()
+        # Assert
+        assert value == 23
+
+    async def test_get_max_available_power(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Arrange 
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.MAX_AVAILABLE_POWER, [2345])
+        # Act
+        value = await self.wallbox.get_max_available_power()
+        # Assert
+        assert value == 2345
+
+    async def test_get_max_available_current(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Arrange 
+        # Act
+        # Assert
+        self
+
     # Charger state
 
     async def test_car_is_connected(self, fake_wallbox_modbus_server, connect_to_wallbox):

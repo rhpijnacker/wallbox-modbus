@@ -46,5 +46,11 @@ class RegisterAddresses(int, enum.Enum):
     CURRENT_SETPOINT = 0x102    # RW, AC max charging current (-32A to 32A)
     POWER_SETPOINT = 0x104      # RW, AC max charging power (-7400W to 7400W)
 
+    MAX_AVAILABLE_CURRENT = 0x200   # RO  (0A to 32A)
+    MAX_AVAILABLE_POWER = 0x202     # RO  (0W to 7400W)
+    AC_CURRENT_RMS = 0x207          # RO  (0A to 100A)
+    AC_VOLTAGE_RMS = 0x20a          # RO  (0V to 5000V)
+    AC_ACTIVE_POWER_RMS = 0x20e     # RO  (0W to 50000W)
+
     CHARGER_STATE = 0x219
     STATE_OF_CHARGE = 0x21a     # RO, (0% to 100%)
