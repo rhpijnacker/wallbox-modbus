@@ -2,6 +2,10 @@ import pytest
 import pytest_asyncio
 from pymodbus.transport import NULLMODEM_HOST
 from wallbox_modbus import WallboxModbus
+from wallbox_modbus.wallbox_modbus import (
+    int16_to_uint16,
+    uint16_to_int16,
+)
 from wallbox_modbus.constants import (
     Action,
     AutoChargingDischarging,
@@ -9,7 +13,7 @@ from wallbox_modbus.constants import (
     ChargerLockState,
     ChargerStates, 
     RegisterAddresses,
-    SetpointType
+    SetpointType,
 )
 
 pytestmark = pytest.mark.asyncio
@@ -246,6 +250,54 @@ class TestWallboxModbus:
         value = await self.wallbox.get_state_of_charge()
         # Assert
         assert value == 23
+
+    # All data
+
+    async def test_get_all_values(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Arrange
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.CONTROL, [
+            Control.REMOTE,
+            AutoChargingDischarging.ENABLE,
+            SetpointType.POWER,
+        ])
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.CHARGER_LOCK_STATE, [
+            ChargerLockState.LOCK,
+            0, # Action - ignored
+            int16_to_uint16(-23), # current setpoint
+            0, # reserved
+            int16_to_uint16(-2345), # power setpoint
+        ])
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.MAX_AVAILABLE_CURRENT, [
+            23, # max available current
+            0, # reserved,
+            2345, # max available power
+            0, 0, 0, 0, # reserved
+            23, # ac current rms
+            0, 0, # reserved
+            234, # ac voltage rms
+            0, 0, 0, # reserved
+            2345, # ac active power rms
+        ])
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.CHARGER_STATE, [
+            ChargerStates.DISCHARGING,
+            23, # state of charge
+        ])
+        # Act
+        data = await self.wallbox.get_all_values()
+        # Assert
+        assert data.get('control') == 'remote'
+        assert data.get('is_auto_charging_discharging_enabled') == True
+        assert data.get('setpoint_type') == 'power'
+        assert data.get('is_charger_locked') == True
+        assert data.get('current_setpoint') == -23
+        assert data.get('power_setpoint') == -2345
+        assert data.get('max_available_current') == 23
+        assert data.get('max_available_power') == 2345
+        assert data.get('ac_current_rms') == 23
+        assert data.get('ac_voltage_rms') == 234
+        assert data.get('ac_active_power_rms') == 2345
+        assert data.get('charger_state') == 'discharging'
+        assert data.get('state_of_charge') == 23
 
 
 def mock_car_is_not_connected(server):

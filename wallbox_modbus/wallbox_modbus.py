@@ -6,6 +6,7 @@ from wallbox_modbus.constants import (
     ChargerLockState,
     ChargerStates, 
     RegisterAddresses, 
+    SetpointType,
 )
 
 class WallboxModbus:
@@ -133,6 +134,30 @@ class WallboxModbus:
     async def get_state_of_charge(self) -> int:
         result = await self.client.read_holding_registers(RegisterAddresses.STATE_OF_CHARGE)
         return result.registers[0]
+
+    ### All ###
+
+    async def get_all_values(self) -> dict:
+        result1 = await self.client.read_holding_registers(RegisterAddresses.CONTROL, 3)
+        result2 = await self.client.read_holding_registers(RegisterAddresses.CHARGER_LOCK_STATE, 5)
+        result3 = await self.client.read_holding_registers(RegisterAddresses.MAX_AVAILABLE_CURRENT, 27)
+        return {
+            'control': 'user' if result1.registers[0] == Control.USER else 'remote',
+            'is_auto_charging_discharging_enabled': result1.registers[1] == AutoChargingDischarging.ENABLE,
+            'setpoint_type': 'current' if result1.registers[2] == SetpointType.CURRENT else 'power',
+
+            'is_charger_locked': result2.registers[0] == ChargerLockState.LOCK,
+            'current_setpoint': uint16_to_int16(result2.registers[2]),
+            'power_setpoint': uint16_to_int16(result2.registers[4]),
+
+            'max_available_current': result3.registers[0],
+            'max_available_power': result3.registers[2],
+            'ac_current_rms': result3.registers[7],
+            'ac_voltage_rms': result3.registers[10],
+            'ac_active_power_rms': result3.registers[14],
+            'charger_state': ChargerStates._value2member_map_[result3.registers[25]].name.lower(),
+            'state_of_charge': result3.registers[26],
+        }
 
 
 MAX_USI = 65536
