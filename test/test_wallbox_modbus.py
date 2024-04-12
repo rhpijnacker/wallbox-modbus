@@ -57,6 +57,16 @@ class TestWallboxModbus:
         # Assert
         assert value == 23456789
 
+    # Part number
+
+    async def test_get_part_number(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Arrange
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.PART_NUMBER_1, [(33<<8)+34, (35<<8)+36, (37<<8)+38, (39<<8)+40, (41<<8)+42, (43<<8)+44])
+        # Act
+        value = await self.wallbox.get_part_number()
+        # Assert
+        assert value == '!"#$%&\'()*+,'
+
     # Control
 
     async def test_release_control(self, fake_wallbox_modbus_server, connect_to_wallbox):
@@ -279,6 +289,12 @@ class TestWallboxModbus:
             2345, # Firmware version
             357, # S/N high
             60437, # S/N low
+            (33<<8)+34, # P/N
+            (35<<8)+36,
+            (37<<8)+38,
+            (39<<8)+40,
+            (41<<8)+42,
+            (43<<8)+44,
         ])
         set_server_values(fake_wallbox_modbus_server, RegisterAddresses.CONTROL, [
             Control.REMOTE,
@@ -312,6 +328,7 @@ class TestWallboxModbus:
         # Assert
         assert data.get('firmware_version') == 2345
         assert data.get('serial_number') == 23456789
+        assert data.get('part_number') == '!"#$%&\'()*+,'
         assert data.get('control') == 'remote'
         assert data.get('is_auto_charging_discharging_enabled') == True
         assert data.get('setpoint_type') == 'power'

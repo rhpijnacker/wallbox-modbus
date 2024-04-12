@@ -32,7 +32,13 @@ class WallboxModbus:
 
     async def get_serial_number(self):
         result = await self.client.read_holding_registers(RegisterAddresses.SERIAL_HIGH, 2)
-        return (result.registers[0] << 16) + result.registers[1]
+        return to_serial_number(result.registers)
+
+    ### Part number ###
+
+    async def get_part_number(self):
+        result = await self.client.read_holding_registers(RegisterAddresses.PART_NUMBER_1, 6)
+        return to_part_number(result.registers)
 
     ### Control ###
 
@@ -150,13 +156,14 @@ class WallboxModbus:
     ### All ###
 
     async def get_all_values(self) -> dict:
-        result0 = await self.client.read_holding_registers(RegisterAddresses.FIRMWARE_VERSION, 3)
+        result0 = await self.client.read_holding_registers(RegisterAddresses.FIRMWARE_VERSION, 9)
         result1 = await self.client.read_holding_registers(RegisterAddresses.CONTROL, 3)
         result2 = await self.client.read_holding_registers(RegisterAddresses.CHARGER_LOCK_STATE, 5)
         result3 = await self.client.read_holding_registers(RegisterAddresses.MAX_AVAILABLE_CURRENT, 27)
         return {
             'firmware_version': result0.registers[0],
-            'serial_number': (result0.registers[1]<<16)+result0.registers[2],
+            'serial_number': to_serial_number(result0.registers[1:3]),
+            'part_number': to_part_number(result0.registers[3:10]),
 
             'control': 'user' if result1.registers[0] == Control.USER else 'remote',
             'is_auto_charging_discharging_enabled': result1.registers[1] == AutoChargingDischarging.ENABLE,
@@ -174,6 +181,20 @@ class WallboxModbus:
             'charger_state': ChargerStates._value2member_map_[result3.registers[25]].name.lower(),
             'state_of_charge': result3.registers[26],
         }
+
+
+def to_serial_number(values):
+    return (values[0]<<16) + values[1]
+
+def to_part_number(values):
+    return (
+        chr(0xff & (values[0]>>8)) + chr(0xff & values[0]) +
+        chr(0xff & (values[1]>>8)) + chr(0xff & values[1]) +
+        chr(0xff & (values[2]>>8)) + chr(0xff & values[2]) +
+        chr(0xff & (values[3]>>8)) + chr(0xff & values[3]) +
+        chr(0xff & (values[4]>>8)) + chr(0xff & values[4]) +
+        chr(0xff & (values[5]>>8)) + chr(0xff & values[5])
+    )
 
 
 MAX_USI = 65536
