@@ -22,28 +22,31 @@ class WallboxModbus:
     def close(self):
         self.client.close()
 
+    async def _read(self, address, count=1):
+        return await self.client.read_holding_registers(address, count, slave=1)
+
     ### Firmware version ###
 
     async def get_firmware_version(self):
-        result = await self.client.read_holding_registers(RegisterAddresses.FIRMWARE_VERSION)
+        result = await self._read(RegisterAddresses.FIRMWARE_VERSION)
         return result.registers[0]
 
     ### Serial number ###
 
     async def get_serial_number(self):
-        result = await self.client.read_holding_registers(RegisterAddresses.SERIAL_HIGH, 2)
+        result = await self._read(RegisterAddresses.SERIAL_HIGH, 2)
         return to_serial_number(result.registers)
 
     ### Part number ###
 
     async def get_part_number(self):
-        result = await self.client.read_holding_registers(RegisterAddresses.PART_NUMBER_1, 6)
+        result = await self._read(RegisterAddresses.PART_NUMBER_1, 6)
         return to_part_number(result.registers)
 
     ### Control ###
 
     async def has_control(self):
-        result = await self.client.read_holding_registers(RegisterAddresses.CONTROL)
+        result = await self._read(RegisterAddresses.CONTROL)
         return result.registers[0] == Control.REMOTE
 
     async def release_control(self):
@@ -55,7 +58,7 @@ class WallboxModbus:
     ### Auto charging/discharging ###
 
     async def is_auto_charging_discharging_enabled(self):
-        result = await self.client.read_holding_registers(RegisterAddresses.AUTO_CHARGING_DISCHARGING)
+        result = await self._read(RegisterAddresses.AUTO_CHARGING_DISCHARGING)
         return result.registers[0] == AutoChargingDischarging.ENABLE
 
     async def disable_auto_charging_discharging(self):
@@ -67,7 +70,7 @@ class WallboxModbus:
     ### Setpoint type ###
         
     async def get_setpoint_type(self):
-        result = await self.client.read_holding_registers(RegisterAddresses.SETPOINT_TYPE)
+        result = await self._read(RegisterAddresses.SETPOINT_TYPE)
         return result.registers[0]
 
     async def set_setpoint_type(self, setpoint_type):
@@ -76,7 +79,7 @@ class WallboxModbus:
     ### Charger lock state ###
         
     async def is_charger_locked(self):
-        result = await self.client.read_holding_registers(RegisterAddresses.CHARGER_LOCK_STATE)
+        result = await self._read(RegisterAddresses.CHARGER_LOCK_STATE)
         return result.registers[0] == ChargerLockState.LOCK
 
     async def lock_charger(self):
@@ -102,7 +105,7 @@ class WallboxModbus:
     ### Current setpoint ###
 
     async def get_current_setpoint(self) -> int:
-        result = await self.client.read_holding_registers(RegisterAddresses.CURRENT_SETPOINT)
+        result = await self._read(RegisterAddresses.CURRENT_SETPOINT)
         return uint16_to_int16(result.registers[0])
 
     async def set_current_setpoint(self, value: int):
@@ -111,7 +114,7 @@ class WallboxModbus:
     ### Power setpoint ###
 
     async def get_power_setpoint(self) -> int:
-        result = await self.client.read_holding_registers(RegisterAddresses.POWER_SETPOINT)
+        result = await self._read(RegisterAddresses.POWER_SETPOINT)
         return uint16_to_int16(result.registers[0])
 
     async def set_power_setpoint(self, value: int):
@@ -120,46 +123,46 @@ class WallboxModbus:
     ### Max available current / power
 
     async def get_max_available_current(self) -> int:
-        result = await self.client.read_holding_registers(RegisterAddresses.MAX_AVAILABLE_CURRENT)
+        result = await self._read(RegisterAddresses.MAX_AVAILABLE_CURRENT)
         return result.registers[0]
 
     async def get_max_available_power(self) -> int:
-        result = await self.client.read_holding_registers(RegisterAddresses.MAX_AVAILABLE_POWER)
+        result = await self._read(RegisterAddresses.MAX_AVAILABLE_POWER)
         return result.registers[0]
 
     ### AC current / voltage / active power RMS
 
     async def get_ac_current_rms(self) -> int:
-        result = await self.client.read_holding_registers(RegisterAddresses.AC_CURRENT_RMS)
+        result = await self._read(RegisterAddresses.AC_CURRENT_RMS)
         return result.registers[0]
 
     async def get_ac_voltage_rms(self) -> int:
-        result = await self.client.read_holding_registers(RegisterAddresses.AC_VOLTAGE_RMS)
+        result = await self._read(RegisterAddresses.AC_VOLTAGE_RMS)
         return result.registers[0]
 
     async def get_ac_active_power_rms(self) -> int:
-        result = await self.client.read_holding_registers(RegisterAddresses.AC_ACTIVE_POWER_RMS)
+        result = await self._read(RegisterAddresses.AC_ACTIVE_POWER_RMS)
         return result.registers[0]
 
     ### Charger state ###
 
     async def is_car_connected(self) -> bool:
-        result = await self.client.read_holding_registers(RegisterAddresses.CHARGER_STATE)
+        result = await self._read(RegisterAddresses.CHARGER_STATE)
         return result.registers[0] != ChargerStates.NO_CAR_CONNECTED
 
     ### State of charge ###
 
     async def get_state_of_charge(self) -> int:
-        result = await self.client.read_holding_registers(RegisterAddresses.STATE_OF_CHARGE)
+        result = await self._read(RegisterAddresses.STATE_OF_CHARGE)
         return result.registers[0]
 
     ### All ###
 
     async def get_all_values(self) -> dict:
-        result0 = await self.client.read_holding_registers(RegisterAddresses.FIRMWARE_VERSION, 9)
-        result1 = await self.client.read_holding_registers(RegisterAddresses.CONTROL, 3)
-        result2 = await self.client.read_holding_registers(RegisterAddresses.CHARGER_LOCK_STATE, 5)
-        result3 = await self.client.read_holding_registers(RegisterAddresses.MAX_AVAILABLE_CURRENT, 27)
+        result0 = await self._read(RegisterAddresses.FIRMWARE_VERSION, 9)
+        result1 = await self._read(RegisterAddresses.CONTROL, 3)
+        result2 = await self._read(RegisterAddresses.CHARGER_LOCK_STATE, 5)
+        result3 = await self._read(RegisterAddresses.MAX_AVAILABLE_CURRENT, 27)
         return {
             'firmware_version': result0.registers[0],
             'serial_number': to_serial_number(result0.registers[1:3]),
