@@ -65,7 +65,7 @@ class TestWallboxModbus:
         # Act
         value = await self.wallbox.get_part_number()
         # Assert
-        assert value == '!"#$%&\'()*+,'
+        assert value == '!"#$-%-&-\'-(-)*+-,'
 
     # Control
 
@@ -328,7 +328,7 @@ class TestWallboxModbus:
         # Assert
         assert data.get('firmware_version') == 2345
         assert data.get('serial_number') == 23456789
-        assert data.get('part_number') == '!"#$%&\'()*+,'
+        assert data.get('part_number') == '!"#$-%-&-\'-(-)*+-,'
         assert data.get('control') == 'remote'
         assert data.get('is_auto_charging_discharging_enabled') == True
         assert data.get('setpoint_type') == 'power'
