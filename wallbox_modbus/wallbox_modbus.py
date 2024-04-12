@@ -2,10 +2,10 @@ from pymodbus.client import AsyncModbusTcpClient
 from wallbox_modbus.constants import (
     Action,
     AutoChargingDischarging,
-    Control, 
+    Control,
     ChargerLockState,
-    ChargerStates, 
-    RegisterAddresses, 
+    ChargerStates,
+    RegisterAddresses,
     SetpointType,
 )
 
@@ -68,7 +68,7 @@ class WallboxModbus:
         await self.client.write_register(RegisterAddresses.AUTO_CHARGING_DISCHARGING, AutoChargingDischarging.ENABLE)
 
     ### Setpoint type ###
-        
+
     async def get_setpoint_type(self):
         result = await self._read(RegisterAddresses.SETPOINT_TYPE)
         return result.registers[0]
@@ -77,7 +77,7 @@ class WallboxModbus:
         await self.client.write_register(RegisterAddresses.SETPOINT_TYPE, setpoint_type)
 
     ### Charger lock state ###
-        
+
     async def is_charger_locked(self):
         result = await self._read(RegisterAddresses.CHARGER_LOCK_STATE)
         return result.registers[0] == ChargerLockState.LOCK
@@ -89,7 +89,7 @@ class WallboxModbus:
         await self.client.write_register(RegisterAddresses.CHARGER_LOCK_STATE, ChargerLockState.UNLOCK)
 
     ### Action ###
-        
+
     async def start_charging_discharging(self):
         await self.client.write_register(RegisterAddresses.ACTION, Action.START_CHARGING_DISCHARGING)
 
@@ -192,11 +192,11 @@ def to_serial_number(values):
 def to_part_number(values):
     return (
         chr(0xff & (values[0]>>8)) + chr(0xff & values[0]) +
-        chr(0xff & (values[1]>>8)) + chr(0xff & values[1]) +
-        chr(0xff & (values[2]>>8)) + chr(0xff & values[2]) +
-        chr(0xff & (values[3]>>8)) + chr(0xff & values[3]) +
+        chr(0xff & (values[1]>>8)) + chr(0xff & values[1]) + '-' +
+        chr(0xff & (values[2]>>8)) + '-' + chr(0xff & values[2]) + '-' +
+        chr(0xff & (values[3]>>8)) + '-' + chr(0xff & values[3]) + '-' +
         chr(0xff & (values[4]>>8)) + chr(0xff & values[4]) +
-        chr(0xff & (values[5]>>8)) + chr(0xff & values[5])
+        chr(0xff & (values[5]>>8)) + '-' + chr(0xff & values[5])
     )
 
 
