@@ -37,6 +37,26 @@ class TestWallboxModbus:
         # Assert
         assert len(fake_wallbox_modbus_server.active_connections) == 1
 
+    # Firmware version
+
+    async def test_get_firmware_version(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Arrange
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.FIRMWARE_VERSION, [2345])
+        # Act
+        value = await self.wallbox.get_firmware_version()
+        # Assert
+        assert value == 2345
+
+    # Serial number
+
+    async def test_get_serial_number(self, fake_wallbox_modbus_server, connect_to_wallbox):
+        # Arrange
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.SERIAL_HIGH, [357, 60437])
+        # Act
+        value = await self.wallbox.get_serial_number()
+        # Assert
+        assert value == 23456789
+
     # Control
 
     async def test_release_control(self, fake_wallbox_modbus_server, connect_to_wallbox):
@@ -255,6 +275,11 @@ class TestWallboxModbus:
 
     async def test_get_all_values(self, fake_wallbox_modbus_server, connect_to_wallbox):
         # Arrange
+        set_server_values(fake_wallbox_modbus_server, RegisterAddresses.FIRMWARE_VERSION, [
+            2345, # Firmware version
+            357, # S/N high
+            60437, # S/N low
+        ])
         set_server_values(fake_wallbox_modbus_server, RegisterAddresses.CONTROL, [
             Control.REMOTE,
             AutoChargingDischarging.ENABLE,
@@ -285,6 +310,8 @@ class TestWallboxModbus:
         # Act
         data = await self.wallbox.get_all_values()
         # Assert
+        assert data.get('firmware_version') == 2345
+        assert data.get('serial_number') == 23456789
         assert data.get('control') == 'remote'
         assert data.get('is_auto_charging_discharging_enabled') == True
         assert data.get('setpoint_type') == 'power'

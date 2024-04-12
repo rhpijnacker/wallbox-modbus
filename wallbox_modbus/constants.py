@@ -36,6 +36,16 @@ class ChargerStates(int, enum.Enum):
     DISCHARGING = 11
 
 class RegisterAddresses(int, enum.Enum):
+    FIRMWARE_VERSION = 0x1      # RO
+    SERIAL_HIGH = 0x2           # RO
+    SERIAL_LOW = 0x3            # RO
+    PART_NUMBER_1 = 0x4         # RO
+    PART_NUMBER_2 = 0x5         # RO
+    PART_NUMBER_3 = 0x6         # RO
+    PART_NUMBER_4 = 0x7         # RO
+    PART_NUMBER_5 = 0x8         # RO
+    PART_NUMBER_6 = 0x9         # RO
+
     CONTROL = 0x51              # RW, 0: User (default) / 1: Remote
     AUTO_CHARGING_DISCHARGING = 0x52
                                 # RW, 0: Disable / 1: Enable (default) 

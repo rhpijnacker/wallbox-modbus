@@ -22,6 +22,18 @@ class WallboxModbus:
     def close(self):
         self.client.close()
 
+    ### Firmware version ###
+
+    async def get_firmware_version(self):
+        result = await self.client.read_holding_registers(RegisterAddresses.FIRMWARE_VERSION)
+        return result.registers[0]
+
+    ### Serial number ###
+
+    async def get_serial_number(self):
+        result = await self.client.read_holding_registers(RegisterAddresses.SERIAL_HIGH, 2)
+        return (result.registers[0] << 16) + result.registers[1]
+
     ### Control ###
 
     async def has_control(self):
@@ -138,10 +150,14 @@ class WallboxModbus:
     ### All ###
 
     async def get_all_values(self) -> dict:
+        result0 = await self.client.read_holding_registers(RegisterAddresses.FIRMWARE_VERSION, 3)
         result1 = await self.client.read_holding_registers(RegisterAddresses.CONTROL, 3)
         result2 = await self.client.read_holding_registers(RegisterAddresses.CHARGER_LOCK_STATE, 5)
         result3 = await self.client.read_holding_registers(RegisterAddresses.MAX_AVAILABLE_CURRENT, 27)
         return {
+            'firmware_version': result0.registers[0],
+            'serial_number': (result0.registers[1]<<16)+result0.registers[2],
+
             'control': 'user' if result1.registers[0] == Control.USER else 'remote',
             'is_auto_charging_discharging_enabled': result1.registers[1] == AutoChargingDischarging.ENABLE,
             'setpoint_type': 'current' if result1.registers[2] == SetpointType.CURRENT else 'power',
