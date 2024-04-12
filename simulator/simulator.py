@@ -45,9 +45,15 @@ class WallboxSimulator:
 
     def _set_modbus_values_initial(self):
         self._set_modbus_values(0x1, [
-            3400, # 0x1: firmware version
-            5,    # 0x2: s/n high
-            19659 # 0x3: s/n low
+            3400,  # 0x1: firmware version
+            5,     # 0x2: s/n high
+            19659, # 0x3: s/n low
+            (97<<8)+98,
+            (99<<8)+100,
+            (101<<8)+102,
+            (103<<8)+104,
+            (105<<8)+106,
+            (107<<8)+108,
         ])
         self._set_modbus_values(0x50, [
             5020, # 0x50: communication port (uint16  502, 1024-65535)
