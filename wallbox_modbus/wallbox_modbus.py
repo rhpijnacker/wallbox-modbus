@@ -25,6 +25,9 @@ class WallboxModbus:
     async def _read(self, address, count=1):
         return await self.client.read_holding_registers(address, count, slave=1)
 
+    async def _write(self, address, value):
+        return await self.client.write_register(address, value, slave=1)
+
     ### Firmware version ###
 
     async def get_firmware_version(self):
@@ -50,10 +53,10 @@ class WallboxModbus:
         return result.registers[0] == Control.REMOTE
 
     async def release_control(self):
-        await self.client.write_register(RegisterAddresses.CONTROL, Control.USER)
+        await self._write(RegisterAddresses.CONTROL, Control.USER)
 
     async def take_control(self):
-        await self.client.write_register(RegisterAddresses.CONTROL, Control.REMOTE)
+        await self._write(RegisterAddresses.CONTROL, Control.REMOTE)
 
     ### Auto charging/discharging ###
 
@@ -62,10 +65,10 @@ class WallboxModbus:
         return result.registers[0] == AutoChargingDischarging.ENABLE
 
     async def disable_auto_charging_discharging(self):
-        await self.client.write_register(RegisterAddresses.AUTO_CHARGING_DISCHARGING, AutoChargingDischarging.DISABLE)
+        await self._write(RegisterAddresses.AUTO_CHARGING_DISCHARGING, AutoChargingDischarging.DISABLE)
 
     async def enable_auto_charging_discharging(self):
-        await self.client.write_register(RegisterAddresses.AUTO_CHARGING_DISCHARGING, AutoChargingDischarging.ENABLE)
+        await self._write(RegisterAddresses.AUTO_CHARGING_DISCHARGING, AutoChargingDischarging.ENABLE)
 
     ### Setpoint type ###
 
@@ -74,7 +77,7 @@ class WallboxModbus:
         return result.registers[0]
 
     async def set_setpoint_type(self, setpoint_type):
-        await self.client.write_register(RegisterAddresses.SETPOINT_TYPE, setpoint_type)
+        await self._write(RegisterAddresses.SETPOINT_TYPE, setpoint_type)
 
     ### Charger lock state ###
 
@@ -83,24 +86,24 @@ class WallboxModbus:
         return result.registers[0] == ChargerLockState.LOCK
 
     async def lock_charger(self):
-        await self.client.write_register(RegisterAddresses.CHARGER_LOCK_STATE, ChargerLockState.LOCK)
+        await self._write(RegisterAddresses.CHARGER_LOCK_STATE, ChargerLockState.LOCK)
 
     async def unlock_charger(self):
-        await self.client.write_register(RegisterAddresses.CHARGER_LOCK_STATE, ChargerLockState.UNLOCK)
+        await self._write(RegisterAddresses.CHARGER_LOCK_STATE, ChargerLockState.UNLOCK)
 
     ### Action ###
 
     async def start_charging_discharging(self):
-        await self.client.write_register(RegisterAddresses.ACTION, Action.START_CHARGING_DISCHARGING)
+        await self._write(RegisterAddresses.ACTION, Action.START_CHARGING_DISCHARGING)
 
     async def stop_charging_discharging(self):
-        await self.client.write_register(RegisterAddresses.ACTION, Action.STOP_CHARGING_DISCHARGING)
+        await self._write(RegisterAddresses.ACTION, Action.STOP_CHARGING_DISCHARGING)
 
     async def reboot_charger(self):
-        await self.client.write_register(RegisterAddresses.ACTION, Action.REBOOT_CHARGER)
+        await self._write(RegisterAddresses.ACTION, Action.REBOOT_CHARGER)
 
     async def update_firmware(self):
-        await self.client.write_register(RegisterAddresses.ACTION, Action.UPDATE_FIRMWARE)
+        await self._write(RegisterAddresses.ACTION, Action.UPDATE_FIRMWARE)
 
     ### Current setpoint ###
 
@@ -109,7 +112,7 @@ class WallboxModbus:
         return uint16_to_int16(result.registers[0])
 
     async def set_current_setpoint(self, value: int):
-        await self.client.write_register(RegisterAddresses.CURRENT_SETPOINT, int16_to_uint16(value))
+        await self._write(RegisterAddresses.CURRENT_SETPOINT, int16_to_uint16(value))
 
     ### Power setpoint ###
 
@@ -118,7 +121,7 @@ class WallboxModbus:
         return uint16_to_int16(result.registers[0])
 
     async def set_power_setpoint(self, value: int):
-        await self.client.write_register(RegisterAddresses.POWER_SETPOINT, int16_to_uint16(value))
+        await self._write(RegisterAddresses.POWER_SETPOINT, int16_to_uint16(value))
 
     ### Max available current / power
 
