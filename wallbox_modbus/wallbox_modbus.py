@@ -17,7 +17,8 @@ class WallboxModbus:
         self.client = AsyncModbusTcpClient(host=host, port=port)
 
     async def connect(self):
-        return await self.client.connect()
+        if not self.client.connected:
+            await self.client.connect()
 
     def close(self):
         self.client.close()
@@ -93,6 +94,11 @@ class WallboxModbus:
 
     ### Action ###
 
+    async def is_charging_discharging(self) -> int:
+        result = await self._read(RegisterAddresses.CHARGER_LOCK_STATE)
+        print('is_charging_discharging', result.registers[0])
+        return result.registers[0]
+
     async def start_charging_discharging(self):
         await self._write(RegisterAddresses.ACTION, Action.START_CHARGING_DISCHARGING)
 
@@ -137,7 +143,7 @@ class WallboxModbus:
 
     async def get_ac_current_rms(self) -> int:
         result = await self._read(RegisterAddresses.AC_CURRENT_RMS)
-        return result.registers[0]
+        return uint16_to_int16(result.registers[0])
 
     async def get_ac_voltage_rms(self) -> int:
         result = await self._read(RegisterAddresses.AC_VOLTAGE_RMS)
@@ -145,7 +151,7 @@ class WallboxModbus:
 
     async def get_ac_active_power_rms(self) -> int:
         result = await self._read(RegisterAddresses.AC_ACTIVE_POWER_RMS)
-        return result.registers[0]
+        return uint16_to_int16(result.registers[0])
 
     ### Charger state ###
 
@@ -176,14 +182,15 @@ class WallboxModbus:
             'setpoint_type': 'current' if result1.registers[2] == SetpointType.CURRENT else 'power',
 
             'is_charger_locked': result2.registers[0] == ChargerLockState.LOCK,
+            'action': result2.registers[1],
             'current_setpoint': uint16_to_int16(result2.registers[2]),
             'power_setpoint': uint16_to_int16(result2.registers[4]),
 
             'max_available_current': result3.registers[0],
             'max_available_power': result3.registers[2],
-            'ac_current_rms': result3.registers[7],
+            'ac_current_rms': uint16_to_int16(result3.registers[7]),
             'ac_voltage_rms': result3.registers[10],
-            'ac_active_power_rms': result3.registers[14],
+            'ac_active_power_rms': uint16_to_int16(result3.registers[14]),
             'charger_state': ChargerStates._value2member_map_[result3.registers[25]].name.lower(),
             'state_of_charge': result3.registers[26],
         }
