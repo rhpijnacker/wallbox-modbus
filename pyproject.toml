@@ -5,3 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "wallbox_modbus"
 version = "0.0.1"
+authors = [
+  { name="Ronald Pijnacker", email="ronald.pijnacker+pypi@gmail.com" },
+]
+description = "Control your Wallbox Quasar EV charger using Modbus commands"
