@@ -1,6 +1,8 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+#requires = ["hatchling"]
+#build-backend = "hatchling.build"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "wallbox_modbus"
@@ -9,3 +11,6 @@ authors = [
   { name="Ronald Pijnacker", email="ronald.pijnacker+pypi@gmail.com" },
 ]
 description = "Control your Wallbox Quasar EV charger using Modbus commands"
+
+[tool.setuptools.packages]
+find = { include=["wallbox_modbus"] }
